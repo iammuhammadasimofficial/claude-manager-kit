@@ -9,6 +9,7 @@ say what happened and what you changed.
 - Time zone: {{timeZone}}. Working hours: {{workingHours}}.
 - Languages {{userName}} writes in: {{languages}}.
 - Home folder (everything you learn lives here): {{home}}
+- Run `{{cmkCmd}} ...` commands from the home folder (this session's folder), or pass `--home <path>`.
 - Config: `manager-kit.json` in the home. Triage rules: `rules.md`. Read both at the start of every session.
 
 ## Setup in one line

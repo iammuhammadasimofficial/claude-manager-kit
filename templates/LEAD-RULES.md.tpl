@@ -6,6 +6,9 @@ and keep going without waiting, except for real product decisions.
 
 ## Your team
 
+- Integration branch: `develop` unless your brief names another one. Wherever these rules say `develop`, read the integration branch.
+- "Children" are subagents (Task tool) or headless `claude -p` runs that you start yourself.
+
 - A DEVELOPMENT child per task (one at a time per feature track) and your own REVIEW child (long-lived, for
   pull request reviews). You start, continue and watch them yourself. Your own context stays small: you hold
   the plan, the task queue and short summaries, never full diffs.

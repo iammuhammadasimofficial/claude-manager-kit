@@ -101,17 +101,17 @@ function routingSection(cfg) {
     '|---|---|---|',
     ...rows,
     '',
-    '1. Find the lead that owns the work (same feature, ticket, PR or branch) with `cmk lead status`.',
+    '1. Find the lead that owns the work (same feature, ticket, PR or branch) with `npx claude-manager-kit lead status`.',
     '2. Prefer the lead that already owns the topic. Start a new job only when nothing fits.',
     '3. Write briefs so the lead can act alone: the goal, links, what done looks like, and the hard rules below.',
     '   Ask it to end with a short summary and PR or ticket links.',
-    `4. Start: \`cmk lead start <lead> <job> <brief-file> [--model sonnet] [--cwd <dir>]\`. Continue: \`cmk lead reply <job> <brief-file>\`.`,
-    '   Read: `cmk lead status`, `cmk lead result <job>`. Stop: `cmk lead stop <job>`.',
+    `4. Start: \`npx claude-manager-kit lead start <lead> <job> <brief-file> [--model sonnet] [--cwd <dir>]\`. Continue: \`npx claude-manager-kit lead reply <job> <brief-file>\`.`,
+    '   Read: `npx claude-manager-kit lead status`, `npx claude-manager-kit lead result <job>`. Stop: `npx claude-manager-kit lead stop <job>`.',
     '5. If a lead is busy, do not interrupt it: keep the instruction and send it when the job finishes.',
     '6. A result ending with `QUESTION:` is for you: answer from context, or ask the user, then reply to the job.',
     '7. Record every dispatch in `memory/state.md` and on the board.',
-    `8. Before assigning, run \`cmk usage\`: at 85 percent of the 5-hour limit, assign nothing new to that lead.`,
-  ].join('\n').replace('Check `' + 'cmkCmd' + '` is not needed: use ', 'Use ');
+    `8. Before assigning, run \`npx claude-manager-kit usage\`: at 85 percent of the 5-hour limit, assign nothing new to that lead.`,
+  ].join(String.fromCharCode(10));
 }
 
 function meetingsSection(cfg) {
@@ -157,7 +157,7 @@ export function buildVars(cfg, extra = {}) {
     routingSection: routingSection(cfg),
     meetingsSection: meetingsSection(cfg),
     leadsStep: leads.length
-      ? `6. Start each lead with its brief (\`cmk lead start <lead> <job> leads/<lead>/brief-start.md\`) and a first small task, one at a time. Leads: ${leads.map((l) => l.name).join(', ')}.`
+      ? `6. Start each lead with its brief (\`npx claude-manager-kit lead start <lead> <job> leads/<lead>/brief-start.md\`) and a first small task, one at a time. Leads: ${leads.map((l) => l.name).join(', ')}.`
       : '6. This is a solo setup: there are no leads to start. Skip this step.',
     leadRulesPath: path.join(cfg.assistant.home, 'leads', 'LEAD-RULES.md'),
     leadName: '',

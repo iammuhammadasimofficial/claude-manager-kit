@@ -41,7 +41,7 @@ test('generated content uses the config values', () => {
   assert.match(files['leads/Wolf/brief-start.md'], /extra Claude account/);
   assert.match(files['leads/Beast/brief-start.md'], /dev@beast\.local/);
   assert.match(files['STARTER-PROMPT.md'], /Slack/);
-  assert.match(files['STARTER-PROMPT.md'], /cmk lead start/);
+  assert.match(files['STARTER-PROMPT.md'], /claude-manager-kit lead start/);
 });
 
 test('solo setup says there are no leads', () => {
