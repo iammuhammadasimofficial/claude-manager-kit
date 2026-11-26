@@ -28,9 +28,9 @@ test('an unknown option is refused before anything is written', () => {
 test('rate and doctor work against a generated home', () => {
   const root = tmpDir('cmk-cli-');
   const home = path.join(root, 'H');
-  const setup = spawnSync(process.execPath, [CLI, 'setup', '--yes', '--no-open', '--home', home], { encoding: 'utf8', env: { ...process.env, CMK_ROOT: path.join(root, 'r') } });
+  const env = { ...process.env, CMK_ROOT: path.join(root, 'r'), CMK_CLAUDE_BIN: process.execPath };
+  const setup = spawnSync(process.execPath, [CLI, 'setup', '--yes', '--no-open', '--home', home], { encoding: 'utf8', env });
   assert.equal(setup.status, 0, setup.stdout + setup.stderr);
-  const env = { ...process.env, CMK_ROOT: path.join(root, 'r') };
   const bad = spawnSync(process.execPath, [CLI, 'rate', 'bad', 'late digest', 'two hours late', '--home', home], { encoding: 'utf8', env });
   assert.equal(bad.status, 0, bad.stdout);
   const none = spawnSync(process.execPath, [CLI, 'rate', 'meh', 'x', '--home', home], { encoding: 'utf8', env });
