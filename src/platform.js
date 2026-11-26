@@ -12,9 +12,9 @@ export function pathFor(platform = process.platform) {
 }
 
 /** Where the tool keeps non-portable state (account config dirs, jobs). Never inside the assistant home. */
-export function cosRoot(env = process.env, home = os.homedir(), platform = process.platform) {
-  if (env.COS_ROOT) return env.COS_ROOT;
-  return pathFor(platform).join(home, '.claude-chief-of-staff');
+export function cmkRoot(env = process.env, home = os.homedir(), platform = process.platform) {
+  if (env.CMK_ROOT) return env.CMK_ROOT;
+  return pathFor(platform).join(home, '.claude-manager-kit');
 }
 
 export function expandHome(p, home = os.homedir(), platform = process.platform) {
@@ -104,14 +104,14 @@ export function spawnProc(cmd, args = [], opts = {}) {
 }
 
 /**
- * How to invoke Claude Code. COS_CLAUDE_BIN (and optional COS_CLAUDE_BIN_ARGS, a JSON array of leading
+ * How to invoke Claude Code. CMK_CLAUDE_BIN (and optional CMK_CLAUDE_BIN_ARGS, a JSON array of leading
  * arguments) override the lookup. This is used by the tests and by people with unusual installs.
  */
 export function claudeInvocation(env = process.env, platform = process.platform) {
-  if (env.COS_CLAUDE_BIN) {
+  if (env.CMK_CLAUDE_BIN) {
     let prefix = [];
-    try { prefix = JSON.parse(env.COS_CLAUDE_BIN_ARGS || '[]'); } catch { prefix = []; }
-    return { cmd: env.COS_CLAUDE_BIN, prefix };
+    try { prefix = JSON.parse(env.CMK_CLAUDE_BIN_ARGS || '[]'); } catch { prefix = []; }
+    return { cmd: env.CMK_CLAUDE_BIN, prefix };
   }
   const cmd = resolveCommand('claude', platform);
   return cmd ? { cmd, prefix: [] } : null;
@@ -187,7 +187,7 @@ export function detectTimeZone() {
 
 /** Terminal symbols with a plain ASCII fallback. */
 export function symbols(env = process.env, isTTY = process.stdout.isTTY) {
-  const ascii = env.COS_ASCII === '1' || env.TERM === 'dumb' || !isTTY;
+  const ascii = env.CMK_ASCII === '1' || env.TERM === 'dumb' || !isTTY;
   return ascii
     ? { ok: '[ok]', fail: '[x]', warn: '[!]', arrow: '->', bullet: '-' }
     : { ok: '✓', fail: '✗', warn: '!', arrow: '→', bullet: '•' };

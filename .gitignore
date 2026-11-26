@@ -6,3 +6,4 @@ Thumbs.db
 .env.*
 *.tgz
 coverage/
+SPEC.md

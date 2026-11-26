@@ -1,11 +1,11 @@
 {
-  "name": "claude-chief-of-staff",
+  "name": "claude-manager-kit",
   "version": "0.1.0",
-  "description": "Set up a personal AI chief of staff for Claude Code and Claude Desktop: one manager session plus optional lead accounts and machines.",
+  "description": "Set up a personal AI manager for Claude Code and Claude Desktop: one manager session plus optional lead accounts and machines.",
   "type": "module",
   "bin": {
-    "claude-chief-of-staff": "bin/cli.js",
-    "cos": "bin/cli.js"
+    "claude-manager-kit": "bin/cli.js",
+    "cmk": "bin/cli.js"
   },
   "files": [
     "bin/",
@@ -15,7 +15,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "test": "node --test test/",
+    "test": "node --test",
     "check": "node --check bin/cli.js && node --check src/*.js"
   },
   "engines": {
@@ -26,14 +26,15 @@
     "claude-code",
     "claude-desktop",
     "ai-assistant",
-    "chief-of-staff",
+    "manager-kit",
+    "manager",
     "agents",
     "automation",
     "cli"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/iammuhammadasimofficial/claude-chief-of-staff.git"
+    "url": "git+https://github.com/iammuhammadasimofficial/claude-manager-kit.git"
   },
   "license": "MIT"
 }
