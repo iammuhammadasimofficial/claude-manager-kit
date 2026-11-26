@@ -199,7 +199,7 @@ export function createUi(out = process.stdout, env = process.env) {
   return {
     sym,
     line: w,
-    heading: (s) => { w(''); w(s); w('-'.repeat(Math.min(Math.max(s.length, 8), 72))); },
+    heading: (s) => { w(''); w(s); w('-'.repeat(Math.min(Math.max(s.length, 3), 72))); },
     ok: (s) => w(`  ${sym.ok} ${s}`),
     fail: (s) => w(`  ${sym.fail} ${s}`),
     warn: (s) => w(`  ${sym.warn} ${s}`),

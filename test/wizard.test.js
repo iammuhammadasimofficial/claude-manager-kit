@@ -57,3 +57,12 @@ test('scripted answers build a mixed setup in a dry run', async () => {
   assert.equal(lead.env.CLAUDE_CODE_SUBAGENT_MODEL, 'sonnet');
   fs.rmSync(r.tmpBase, { recursive: true, force: true });
 });
+
+test('input that ends before the summary is confirmed writes nothing', async () => {
+  const out = [];
+  const output = new Writable({ write(c, e, cb) { out.push(String(c)); cb(); } });
+  const r = await runWizard({ dryRun: true, input: Readable.from(['Sam\n']), output });
+  assert.equal(r.aborted, true);
+  assert.equal(r.reason, 'declined');
+  assert.ok(out.join('').includes('Nothing written'));
+});

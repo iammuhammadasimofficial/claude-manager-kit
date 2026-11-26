@@ -5,6 +5,17 @@ import { leadsOf } from './config.js';
 import { verifyAccount } from './accounts.js';
 import { testMachine, explainMachineFailure, JOIN_COMMAND } from './machines.js';
 
+export function claudeInstallHint(platform = process.platform) {
+  const how = platform === 'win32' ? 'In PowerShell: irm https://claude.ai/install.ps1 | iex' : 'In a terminal: curl -fsSL https://claude.ai/install.sh | bash';
+  return `Install Claude Code. ${how}   (or: npm install -g @anthropic-ai/claude-code). Then open a NEW terminal and re-run.`;
+}
+
+export function gitInstallHint(platform = process.platform) {
+  if (platform === 'win32') return 'Install git: winget install Git.Git (or https://git-scm.com/downloads), then open a new terminal.';
+  if (platform === 'darwin') return 'Install git: xcode-select --install (or brew install git).';
+  return 'Install git with your package manager, for example: sudo apt install git';
+}
+
 export function parseNodeMajor(version = process.version) {
   const m = String(version).match(/^v?(\d+)/);
   return m ? Number(m[1]) : 0;
@@ -22,16 +33,16 @@ export function checkEnvironment({ platform = process.platform, env = process.en
   const inv = claudeInvocation(env, platform);
   if (inv) {
     const r = runner(inv.cmd, [...inv.prefix, '--version'], { timeout: 30000 });
-    out.push({ id: 'claude', label: 'Claude Code CLI', ok: r.ok, required: true, detail: r.ok ? r.stdout.trim().split(/\r?\n/)[0] : 'found but did not run', hint: r.ok ? '' : 'Reinstall Claude Code: https://claude.com/claude-code' });
+    out.push({ id: 'claude', label: 'Claude Code CLI', ok: r.ok, required: true, detail: r.ok ? r.stdout.trim().split(/\r?\n/)[0] : 'found but did not run', hint: r.ok ? '' : 'Claude Code is on the PATH but did not run. Try: claude --version in this terminal, or reinstall it.' });
   } else {
-    out.push({ id: 'claude', label: 'Claude Code CLI', ok: false, required: true, detail: 'not found on PATH', hint: 'Install Claude Code (https://claude.com/claude-code), open a new terminal, then re-run.' });
+    out.push({ id: 'claude', label: 'Claude Code CLI', ok: false, required: true, detail: 'not found on PATH', hint: claudeInstallHint(platform) });
   }
 
   const d = desktopStatus(platform, env);
-  out.push({ id: 'desktop', label: 'Claude Desktop', ok: d.installed, required: false, detail: d.detail, hint: d.installed ? '' : (platform === 'linux' ? 'Not available on Linux. Terminal mode works: run claude inside the home folder.' : 'Optional. Install from https://claude.com/download to use the Code tab.') });
+  out.push({ id: 'desktop', label: 'Claude Desktop', ok: d.installed, required: false, detail: d.detail, hint: d.installed ? '' : (platform === 'linux' ? 'Recommended: Claude Desktop (Code tab) gives the manager sessions, scheduled tasks and connectors, but it does not exist on Linux. Terminal mode works with less: no scheduled tasks, no messaging other sessions. Run claude inside the home folder.' : 'Strongly recommended: install Claude Desktop from https://claude.com/download. The manager is built for its Code tab (long-lived session, other sessions, scheduled tasks, connectors). Terminal-only works with less.') });
 
   const git = has('git');
-  out.push({ id: 'git', label: 'git', ok: !!git, required: true, detail: git ? 'found' : 'not found', hint: git ? '' : 'Install git: https://git-scm.com/downloads' });
+  out.push({ id: 'git', label: 'git', ok: !!git, required: true, detail: git ? 'found' : 'not found', hint: git ? '' : gitInstallHint(platform) });
 
   const gh = has('gh');
   out.push({ id: 'gh', label: 'GitHub CLI (gh)', ok: !!gh, required: false, detail: gh ? 'found' : 'not found', hint: gh ? '' : 'Optional. Needed only if you pick GitHub as your code tool: https://cli.github.com' });

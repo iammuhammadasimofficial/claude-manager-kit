@@ -14,6 +14,8 @@ import { DEFAULT_MODELS } from './config.js';
 
 const VALUE_FLAGS = new Set(['home', 'model', 'cwd', 'name', 'rule']);
 
+const KNOWN_FLAGS = new Set(['home', 'model', 'cwd', 'name', 'rule', 'yes', 'help', 'version', 'v', 'dry-run', 'no-open', 'wait', 'json']);
+
 export function parseArgs(argv) {
   const flags = {};
   const pos = [];
@@ -35,6 +37,7 @@ export const HELP = `claude-manager-kit (cmk): a personal AI manager for Claude 
 
 Usage:
   npx claude-manager-kit [setup] [--home <path>] [--yes] [--dry-run]
+  cmk update [--home <path>] [--yes]   refresh the playbook and re-check everything, keeping what it learned
   cmk doctor                         re-check environment, accounts, machines, tools
   cmk usage [--json]                 plan usage of every account and machine
   cmk lead start <lead> <job> <brief-file> [--model sonnet|opus|haiku] [--cwd <dir>] [--wait]
@@ -192,6 +195,12 @@ export async function main(argv = process.argv.slice(2), io = {}) {
     ui.line(pkg.version);
     return 0;
   }
+  const unknown = Object.keys(flags).filter((k) => !KNOWN_FLAGS.has(k));
+  if (unknown.length) {
+    ui.fail(`Unknown option --${unknown[0]}. Nothing was changed.`);
+    ui.hint('Run cmk --help to see the options. (A typo like --dryrun would otherwise write real files.)');
+    return 1;
+  }
   let cmd = pos[0];
   if (flags.help || cmd === 'help') { ui.line(HELP); return 0; }
   if (!cmd) cmd = 'setup';
@@ -207,6 +216,13 @@ export async function main(argv = process.argv.slice(2), io = {}) {
           ui.line('');
           ui.line(`Account config dirs and job files for a dry run live under ${path.join(r.tmpBase, 'cmk-root')}. Delete ${r.tmpBase} when done.`);
         }
+        return r.aborted ? 1 : 0;
+      }
+      case 'update': {
+        const home = findHome({ flag: flags.home });
+        if (!home || !loadConfig(home)) { ui.fail('No assistant home found to update. Run "npx claude-manager-kit setup" first, or pass --home <path>.'); return 1; }
+        ui.info(`Updating ${home}. Learned files are kept. The playbook (CLAUDE.md) is regenerated from the latest templates; your old copy is saved as CLAUDE.md.bak.`);
+        const r = await runWizard({ yes: !!flags.yes, home, noOpen: true, input: io.input });
         return r.aborted ? 1 : 0;
       }
       case 'doctor': {

@@ -29,7 +29,7 @@ export function explainMachineFailure(res) {
   switch (res.reason) {
     case 'auth': return 'SSH login failed. Add your public key to the machine (ssh-copy-id user@host) and make sure key login works without a password prompt.';
     case 'network': return 'Could not reach the machine. Check the address, that it is on, and that an SSH server is running.';
-    case 'no-claude': return 'SSH works but the claude command was not found there. Install Claude Code on that machine and make sure it is on the PATH for non-interactive shells.';
+    case 'no-claude': return 'SSH works but the claude command was not found there. Install Claude Code on that machine and make sure it is on the PATH for non-interactive shells (for example export PATH=$HOME/.local/bin:$PATH in ~/.bashrc above any early return for non-interactive shells, or in ~/.zshenv).';
     case 'bad-target': return res.detail;
     default: return 'The test did not pass: ' + (res.detail || 'unknown error');
   }

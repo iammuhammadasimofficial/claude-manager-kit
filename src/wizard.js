@@ -10,11 +10,11 @@ import {
   ASSISTANT_NAMES, ACCOUNT_NAMES, MACHINE_NAMES, pickName, pickNames, sanitizeName, uniqueName,
 } from './names.js';
 import {
-  buildConfig, loadConfig, rememberHome, AUTONOMY_AREAS, AUTONOMY_MODES, ALWAYS_ASK, DEFAULT_MODELS, DEFAULT_SCHEDULES, leadsOf,
+  buildConfig, loadConfig, findHome, rememberHome, AUTONOMY_AREAS, AUTONOMY_MODES, ALWAYS_ASK, DEFAULT_MODELS, DEFAULT_SCHEDULES, leadsOf,
 } from './config.js';
 import { checkEnvironment, summariseChecks, printChecks, runDoctor } from './checks.js';
 import { ensureAccountDir, loginAccount, verifyAccount, writeSettings, leadSettingsPatch } from './accounts.js';
-import { testMachine, explainMachineFailure, JOIN_COMMAND } from './machines.js';
+import { testMachine, explainMachineFailure, validTarget, JOIN_COMMAND } from './machines.js';
 import { ROLES, ROLE_LABELS, optionsFor, toConfigEntry, connectionNotes, addMcp, checkTool, findTool } from './tools.js';
 import { renderAll, writeHome, setupExplain } from './templates.js';
 
@@ -41,12 +41,12 @@ export function createPrompter({ input = process.stdin, output = process.stdout,
     const t = line.trim();
     return t === '' ? def : t;
   };
-  const confirm = async (question, defYes = true) => {
+  const confirm = async (question, defYes = true, { eofValue } = {}) => {
     if (yes) { output.write(`  ${question} [${defYes ? 'Y/n' : 'y/N'}] -> ${defYes ? 'yes' : 'no'}\n`); return defYes; }
     for (;;) {
       output.write(`  ${question} [${defYes ? 'Y/n' : 'y/N'}]: `);
       const line = await readLine();
-      if (line === null) { output.write('\n'); return defYes; }
+      if (line === null) { output.write('\n'); return eofValue === undefined ? defYes : eofValue; }
       const t = line.trim().toLowerCase();
       if (t === '') return defYes;
       if (['y', 'yes'].includes(t)) return true;
@@ -130,7 +130,11 @@ export async function runWizard(opts = {}) {
     }
 
     // Existing config (re-run or move to a new machine)
-    const homeArg = opts.home ? path.resolve(opts.home) : null;
+    let homeArg = opts.home ? path.resolve(opts.home) : null;
+    if (!homeArg && !dryRun) {
+      const found = findHome({ env });
+      if (found && loadConfig(found) && (await p.confirm(`Found your existing assistant at ${found}. Update it (keeps everything it learned)?`, true))) homeArg = found;
+    }
     const existing = homeArg && !dryRun ? loadConfig(homeArg) : null;
     if (existing) ui.ok(`Found an existing setup at ${homeArg}. Learned files are kept; accounts, machines and tools are re-checked.`);
 
@@ -246,6 +250,7 @@ export async function runWizard(opts = {}) {
             ui.hint(`Then, on that machine, run: ${JOIN_COMMAND}`);
           }
         }
+        if (target && !validTarget(target)) { ui.warn(`${nm}: "${target}" is not a valid target (expected user@host), so it was skipped.`); continue; }
         if (target) machines.push({ name: nm, target, shell, verified });
       }
     }
@@ -357,8 +362,8 @@ export async function runWizard(opts = {}) {
     row('Meetings', cfg.tools.meetings?.path || 'none');
     row('Autonomy', AUTONOMY_AREAS.map((a) => `${a}=${cfg.autonomy.areas[a]}`).join(', '));
     row('Models', `manager ${cfg.models.manager}, leads ${cfg.models.lead}, mechanical ${cfg.models.mechanical}`);
-    if (!(await p.confirm('Write everything now?', true))) {
-      ui.line('  Nothing written.');
+    if (!(await p.confirm('Write everything now?', true, { eofValue: false }))) {
+      ui.line('  Nothing written. (If your input ended early, run again, or use --yes to accept every default.)');
       p.close();
       return { aborted: true, reason: 'declined' };
     }
