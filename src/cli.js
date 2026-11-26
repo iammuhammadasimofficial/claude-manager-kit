@@ -208,6 +208,7 @@ export async function main(argv = process.argv.slice(2), io = {}) {
   try {
     switch (cmd) {
       case 'setup': {
+        process.once('SIGINT', () => { ui.line(''); ui.warn('Cancelled. Your home folder was not written. Run setup again any time.'); process.exit(130); });
         const r = await runWizard({ yes: !!flags.yes, dryRun: !!flags['dry-run'], home: flags.home, noOpen: !!flags['no-open'], input: io.input });
         if (r.tmpBase) {
           ui.heading('Dry run result (temporary folder)');
