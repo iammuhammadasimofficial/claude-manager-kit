@@ -22,6 +22,6 @@ Fixed
 - An invalid SSH target (for example one starting with a dash) was saved in the config. It is now skipped.
 - Section underlines in the output no longer overrun short headings.
 
-## 1.0.0
+## 0.1.0 (never published)
 
-First public release: setup wizard, `cmk doctor|usage|lead|join`, portable home folder.
+Internal first version: setup wizard, `cmk doctor|usage|lead|join`, portable home folder.
