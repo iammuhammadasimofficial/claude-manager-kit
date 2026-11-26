@@ -8,10 +8,11 @@ import { runDoctor, checkEnvironment, printChecks } from './checks.js';
 import { collectUsage, usageTable, writeLimits } from './usage.js';
 import { startJob, replyJob, listJobs, readJobStatus, readMeta, jobResult, stopJob, runJob, extractQuestion, jobDir, validateModel } from './jobs.js';
 import { runWizard, treeLines } from './wizard.js';
+import { addRating, readRatings, summariseRatings } from './ratings.js';
 import { verifyAccount, writeSettings, leadSettingsPatch } from './accounts.js';
 import { DEFAULT_MODELS } from './config.js';
 
-const VALUE_FLAGS = new Set(['home', 'model', 'cwd', 'name']);
+const VALUE_FLAGS = new Set(['home', 'model', 'cwd', 'name', 'rule']);
 
 export function parseArgs(argv) {
   const flags = {};
@@ -41,6 +42,7 @@ Usage:
   cmk lead status [job]              list jobs, or show one
   cmk lead result <job>              print the last answer
   cmk lead stop <job>                stop a running job
+  cmk rate good|bad "<what>" ["<why>"] [--rule "<rule>"]   log a rating the manager learns from
   cmk join [--name <name>] [--yes]   run on a remote machine to set up its lead
   cmk help | cmk --version
 
@@ -61,6 +63,17 @@ function needHome(flags, ui) {
   const errs = validateConfig(cfg);
   if (errs.length) { ui.fail(`Config at ${home} is not valid: ${errs.join('; ')}`); return null; }
   return { home, cfg };
+}
+
+function printRatings(ui, home) {
+  const { entries, skipped } = readRatings(home);
+  const s = summariseRatings(entries);
+  ui.heading('Ratings');
+  if (!s.total) { ui.info('No ratings yet. Rate the manager with: cmk rate good|bad "<what>" ["<why>"]'); return; }
+  ui.line(`  ${s.good} good, ${s.bad} bad.`);
+  for (const e of entries.slice(-3)) ui.line(`  ${e.date} ${e.rating}: ${String(e.what).slice(0, 80)}${e.rule ? ' -> rule: ' + String(e.rule).slice(0, 60) : ''}`);
+  if (s.needRule.length) ui.warn(`${s.needRule.length} bad rating(s) have no written rule yet. The manager turns them into rules at session start.`);
+  if (skipped) ui.warn(`${skipped} line(s) in ratings.jsonl are not valid and were skipped.`);
 }
 
 function readBrief(file, ui) {
@@ -200,6 +213,7 @@ export async function main(argv = process.argv.slice(2), io = {}) {
         const ctx = needHome(flags, ui);
         if (!ctx) return 1;
         const r = runDoctor(ctx.cfg, { ui });
+        printRatings(ui, ctx.home);
         const bad = [...r.environment.filter((c) => c.required && !c.ok), ...r.accounts.filter((a) => a.ok === false), ...r.machines.filter((m) => m.ok === false)];
         ui.line('');
         ui.line(bad.length ? `${bad.length} problem(s) found.` : 'All checks passed.');
@@ -212,6 +226,16 @@ export async function main(argv = process.argv.slice(2), io = {}) {
         const file = writeLimits(ctx.home, entries);
         if (flags.json) ui.line(JSON.stringify(entries, null, 2));
         else { ui.line(usageTable(entries)); ui.line(''); ui.info(`Saved ${file}`); }
+        return 0;
+      }
+      case 'rate': {
+        const ctx = needHome(flags, ui);
+        if (!ctx) return 1;
+        const [rating, what, why] = rest;
+        const e = addRating(ctx.home, { rating, what, why, rule: flags.rule || '' });
+        ui.ok(`Logged ${e.rating}: ${e.what}`);
+        if (e.rating === 'bad' && !e.rule) ui.info('The manager will turn this into a written rule at its next session start. To write it now: add --rule "<rule>".');
+        else if (e.rating === 'good') ui.info('The manager will keep doing what worked.');
         return 0;
       }
       case 'lead': return await cmdLead(rest, flags, ui);
