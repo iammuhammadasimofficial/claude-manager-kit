@@ -74,6 +74,26 @@ Solo                       Multi-account                      Multi-machine
                            account, here) account, here)
 ```
 
+Each setup type in Claude Code Desktop: sessions sidebar on the left, the manager chat in the middle, the work board on the right.
+
+**Solo**
+
+<img src="docs/screenshots/solo.svg" alt="Solo setup: manager session, chat and work board" width="100%">
+
+One Claude account. The manager triages and does the work itself with subagents.
+
+**Multi-account**
+
+<img src="docs/screenshots/multi-account.svg" alt="Multi-account setup: manager session, lead sessions on extra accounts and work board" width="100%">
+
+Extra Claude accounts on your computer run leads in parallel, each with its own plan limits.
+
+**Multi-machine**
+
+<img src="docs/screenshots/multi-machine.svg" alt="Multi-machine setup: manager session, leads on other computers and work board" width="100%">
+
+Other computers over SSH run leads, so heavy work never competes with your laptop.
+
 Mixed setups (accounts and machines together) are allowed. The terminal and Desktop session uses your main
 account; leads use the extra accounts or machines. Plan limits are per account, which is the point of extra accounts.
 
