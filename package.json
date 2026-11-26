@@ -1,7 +1,7 @@
 {
   "name": "claude-manager-kit",
-  "version": "0.1.0",
-  "description": "Set up a personal AI manager for Claude Code and Claude Desktop: one manager session plus optional lead accounts and machines.",
+  "version": "1.1.0",
+  "description": "Turn your existing Claude Code subscription into a manager that triages, routes work to parallel accounts and machines, replies in your tone and learns from your ratings. No API keys, no API costs.",
   "type": "module",
   "bin": {
     "claude-manager-kit": "bin/cli.js",
@@ -12,6 +12,7 @@
     "src/",
     "templates/",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "scripts": {
@@ -25,16 +26,27 @@
     "claude",
     "claude-code",
     "claude-desktop",
+    "anthropic",
     "ai-assistant",
-    "manager-kit",
-    "manager",
+    "ai-manager",
     "agents",
+    "multi-agent",
+    "parallel-agents",
+    "orchestration",
+    "subagents",
+    "no-api-key",
+    "productivity",
     "automation",
+    "developer-tools",
     "cli"
   ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/iammuhammadasimofficial/claude-manager-kit.git"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "homepage": "https://github.com/iammuhammadasimofficial/claude-manager-kit#readme",
+  "bugs": {
+    "url": "https://github.com/iammuhammadasimofficial/claude-manager-kit/issues"
+  }
 }
